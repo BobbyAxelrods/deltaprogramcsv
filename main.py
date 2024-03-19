@@ -11,7 +11,7 @@ logging.basicConfig(filename='logfile.log', level=logging.INFO, format='%(asctim
 
 def compare_csv_files(path1, path2):
     try:
-        diff = compare(load_csv(open(path1), key="INDICATOR"), load_csv(open(path2), key="INDICATOR"))
+        diff = compare(load_csv(open(path1), key="col1"), load_csv(open(path2), key="col1"))
         return diff
     except Exception as e:
         logging.error(f"Error comparing CSV files: {e}")

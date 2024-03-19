@@ -2,7 +2,7 @@
 
 ## Setup 
 1. Ensure delta files follow as per folder naming convention (DD_MM_YYYY) for today date and yesterday date. Make sure to store csv in each folder . When automating file save, ensure to create a new folder with above naming convention and save each files in it. 
-> Check in `main.py` if csv got any changes on first column nanme as it would affect changes tracking in line 14 where key = "INDICATOR" Change indicator to new first column name 
+> Check in `main.py` if csv got any changes on first column nanme as it would affect changes tracking in line 14 where key = "col1" Change col1 to new first column name 
 2. Run the program when both file are in respective folder . 
 3. Running the program process: -
 > In terminal, 
