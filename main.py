@@ -5,9 +5,19 @@ from datetime import datetime, timedelta
 from csv_diff import load_csv, compare
 import json
 import time 
+import configparser
 
 # Configure logging
 logging.basicConfig(filename='logfile.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+def parse_val(file_path):
+    properties = {}
+    config = configparser.ConfigParser()
+    config.read(file_path)
+    for x in config.sections():
+        for key,value in config.items(x):
+            properties[key]=value.strip()
+        return properties
 
 def compare_csv_files(path1, path2):
     try:
@@ -49,47 +59,59 @@ def write_differences(differences, filename):
 
 def main():
     try:
+        properties_path = 'val.properties'
+
+        #time tracking 
         start_time = time.time()
+
+        # date for naming 
         today = datetime.now()
         today_date = today.strftime('%d_%m_%Y')
-        cwd = os.getcwd()
-        today_path_folder = os.path.join(cwd, 'files', today_date)
         yesterday = today - timedelta(days=1)
         yesterday_date = yesterday.strftime('%d_%m_%Y')
-        yesterday_path_folder = os.path.join(cwd, 'files', yesterday_date)
 
-        files_today = os.listdir(today_path_folder)
-        files_yesterday = os.listdir(yesterday_path_folder)
-        yesterday_path = os.path.join(cwd, 'files', yesterday_date, files_yesterday[0])
-        today_path = os.path.join(cwd, 'files', today_date, files_today[0])
+        # properties value management 
+        properties = parse_val(properties_path)
+        path1=properties.get('today_files_path')
+        path2=properties.get('yesterday_files_path')
+        delta_path=properties.get('delta_files_path')
+        filename_path1 = os.listdir(path1)[0]
+        filename_path2 = os.listdir(path2)[0]
+        today_path = path1+'\\'+filename_path1
+        yesterday_path =  path2+'\\'+filename_path2
+        delta_filename = delta_path+'\\'+today_date+'.json'
 
-        print(f'Program running for files {yesterday_date} & {today_date}.')
 
+        # Comparison process function
         diff_output = compare_csv_files(today_path, yesterday_path)
-        delta_filename = f"deltalogs_{today_date}.json"
-        logs_save_path = os.path.join(cwd, 'delta', f'{delta_filename}.json')
-        save_diff_to_json(diff_output, logs_save_path) 
+        print(f'Program running for files {filename_path1} & {filename_path1}.')
+
+        # Savings change tracking 
+        save_diff_to_json(diff_output, delta_filename) 
         
+        #time tracking 
         end_time = time.time()
         execution_time = end_time - start_time
 
         print(f'Change tracking files created between files {today_date} & {yesterday_date} with speed of {execution_time:.2f} seconds')
 
-        file_1_header, file_1_data = read_csv(yesterday_path)
-        file_2_header, file_2_data = read_csv(today_path)
-
+        # file reading process function 
+        file_1_header, file_1_data = read_csv(today_path)
+        file_2_header, file_2_data = read_csv(yesterday_path)
         differences = []
 
+        # Looping overall row and saving delta
         for row in file_2_data:
             if row not in file_1_data:
                 differences.append(row)
 
-        filename = os.path.join(cwd, 'delta', f'Delta_{today_date}.csv')
+        # Saving Delta 
+        filename = os.path.join(delta_path, f'Delta_{today_date}.csv')
         write_differences(differences, filename)
         end_time = time.time()
         execution_time = end_time - start_time
 
-        print(f'Delta files created between files {today_date} & {yesterday_date} with speed of {execution_time:.2f} seconds')
+        print(f'Delta files created between files {filename_path1} & {filename_path2} with speed of {execution_time:.2f} seconds')
 
         print('Program Ended Successfully')
 
