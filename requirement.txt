@@ -1,0 +1,14 @@
+# Required Python packages for the environment 3.11
+
+# Package for comparing CSV files
+csv-diff
+
+# Package for data manipulation and analysis
+pandas
+
+# Package for working with dates and times
+datetime
+
+# Package for numerical computing
+numpy
+
